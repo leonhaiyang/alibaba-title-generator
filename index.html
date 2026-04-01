@@ -159,13 +159,13 @@ body { font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif; background: #f
     <summary>📌 使用说明 & 组标题规则</summary>
     <div class="rules-body">
       <ul>
-        <li>Excel 表格格式：第1列 = <code>词根</code>，第2列 = <code>关键词(英文)</code>，第4列 = <code>搜索指数</code>（其余列可选，会自动忽略）</li>
+        <li>Excel 表格格式：第1列 = 词根，第2列 = 关键词(英文)，第4列 = 搜索指数（其余列可选，会自动忽略）</li>
         <li>第一行为表头，会自动跳过</li>
-        <li><strong>词根</strong>固定放在每条标题<strong>最右边</strong></li>
-        <li>关键词按<strong>搜索指数从大到小</strong>优先填入，组合时<strong>顺序随机打乱</strong></li>
-        <li>同一条标题内<strong>不出现重复单词</strong>（词根自带的词自动跳过）</li>
-        <li>不同标题之间单词<strong>可以重复</strong></li>
-        <li>每条标题<strong>接近128字符，不超过128</strong></li>
+        <li>词根固定放在每条标题最右边</li>
+        <li>关键词按搜索指数从大到小优先填入，组合时顺序随机打乱</li>
+        <li>同一条标题内不出现重复单词（词根自带的词自动跳过）</li>
+        <li>不同标题之间单词可以重复</li>
+        <li>每条标题接近128字符，不超过128</li>
         <li>首字母大写，小于4字母的冠词/连词/介词小写（a, an, the, and, or, for, at, in, of, to...）</li>
       </ul>
     </div>
@@ -316,7 +316,7 @@ function titleCase(s) {
 }
 
 function cleanWord(w) {
-  w = w.replace(/^[\\,\\-\\/\\(\\)"']+|[\\,\\-\\/\\(\\)"']+$/g, '');
+  w = w.replace(/^[,\-\/\(\)"']+|[,\-\/\(\)"']+$/g, '');
   if (!w) return null;
   if (SKIP_WORDS.has(w.toLowerCase())) return null;
   if (w.startsWith('$') || w.startsWith('-')) return null;
@@ -326,7 +326,7 @@ function cleanWord(w) {
 }
 
 function extractNewWords(keyword, rootWords, usedWords) {
-  const words = keyword.toLowerCase().split(/\\s+/);
+  const words = keyword.toLowerCase().split(/\s+/);
   const result = [];
   const added = new Set();
   for (let w of words) {
@@ -359,7 +359,7 @@ function buildTitles(root, keywords, numTitles, maxChars) {
   const sorted = [...keywords].sort((a, b) => b.index - a.index);
   if (!sorted.length) return titles;
 
-  const rootWords = new Set(root.toLowerCase().split(/\\s+/));
+  const rootWords = new Set(root.toLowerCase().split(/\s+/));
 
   // Group by index tier
   const tiers = {};
@@ -403,7 +403,7 @@ function buildTitles(root, keywords, numTitles, maxChars) {
     if (!selectedParts.length) continue;
 
     shuffleArray(selectedParts, rng);
-    const allWords = selectedParts.flat().concat(root.split(/\\s+/));
+    const allWords = selectedParts.flat().concat(root.split(/\s+/));
     const formatted = titleCase(allWords.join(' '));
 
     if (formatted.length <= maxChars && !titles.includes(formatted)) {
@@ -507,9 +507,9 @@ function renderResults() {
 // ==================== Copy ====================
 function copyTable() {
   if (!generatedResults.length) return;
-  let text = '词根\\t序号\\t组合标题\\t字符数\\n';
+  let text = '词根\t序号\t组合标题\t字符数\n';
   generatedResults.forEach(r => {
-    text += `${r.root}\\t${r.seq}\\t${r.title}\\t${r.chars}\\n`;
+    text += `${r.root}\t${r.seq}\t${r.title}\t${r.chars}\n`;
   });
 
   navigator.clipboard.writeText(text).then(() => {
