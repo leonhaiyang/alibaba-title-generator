@@ -3,547 +3,663 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>一键组标题 - 阿里国际站标题生成器</title>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<title>国际站一键组标题工具</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-.header { background: linear-gradient(135deg, #1a73e8, #0d47a1); color: #fff; padding: 30px 0; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,.15); }
-.header h1 { font-size: 28px; font-weight: 700; letter-spacing: 2px; }
-.header p { margin-top: 8px; font-size: 14px; opacity: .85; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #f0f4f8;
+    min-height: 100vh;
+    color: #1a202c;
+  }
 
-.container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+  .header {
+    background: linear-gradient(135deg, #1a56db 0%, #0ea5e9 100%);
+    color: white;
+    padding: 28px 0 24px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(26,86,219,0.18);
+  }
+  .header h1 { font-size: 1.7rem; font-weight: 700; letter-spacing: 1px; }
+  .header p  { margin-top: 6px; font-size: 0.92rem; opacity: 0.88; }
 
-/* Upload Area */
-.upload-area {
-  background: #fff; border: 2px dashed #c4c9d4; border-radius: 16px;
-  min-height: 340px; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 10px;
-  cursor: pointer; transition: all .3s; margin-bottom: 20px;
-  position: relative; box-shadow: 0 2px 16px rgba(0,0,0,.06);
-}
-.upload-area:hover, .upload-area.dragover {
-  border-color: #1a73e8; background: #e8f0fe;
-  box-shadow: 0 4px 24px rgba(26,115,232,.12);
-}
-.upload-area .icon { font-size: 64px; line-height: 1; }
-.upload-area .main-text { font-size: 22px; font-weight: 700; color: #333; }
-.upload-area .sub-text { font-size: 14px; color: #999; margin-top: 2px; }
-.upload-area input[type="file"] { display: none; }
+  .container { max-width: 900px; margin: 32px auto; padding: 0 16px 60px; }
 
-/* Settings */
-.settings {
-  background: #fff; border-radius: 12px; padding: 20px 24px;
-  margin-bottom: 20px; box-shadow: 0 1px 6px rgba(0,0,0,.06);
-  display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
-}
-.settings label { font-size: 14px; font-weight: 600; color: #555; }
-.settings input[type="number"] {
-  width: 80px; padding: 6px 10px; border: 1px solid #d0d5dd; border-radius: 6px;
-  font-size: 14px; text-align: center;
-}
-.settings .info { font-size: 12px; color: #999; margin-left: 4px; }
+  /* 上传区 */
+  .upload-area {
+    background: white;
+    border: 2.5px dashed #93c5fd;
+    border-radius: 16px;
+    padding: 52px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .22s;
+    position: relative;
+  }
+  .upload-area:hover, .upload-area.drag-over {
+    border-color: #1a56db;
+    background: #eff6ff;
+    transform: scale(1.012);
+  }
+  .upload-icon { font-size: 3.2rem; margin-bottom: 14px; display: block; }
+  .upload-title { font-size: 1.15rem; font-weight: 600; color: #1e3a8a; margin-bottom: 6px; }
+  .upload-sub   { font-size: 0.87rem; color: #64748b; }
+  .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 
-.btn-generate {
-  background: linear-gradient(135deg, #1a73e8, #1565c0); color: #fff;
-  border: none; padding: 12px 36px; border-radius: 8px; font-size: 16px;
-  font-weight: 600; cursor: pointer; transition: all .2s; letter-spacing: 1px;
-}
-.btn-generate:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,115,232,.4); }
-.btn-generate:disabled { background: #bbb; cursor: not-allowed; transform: none; box-shadow: none; }
+  /* 设置区 */
+  .settings-card {
+    background: white;
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-top: 18px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .setting-item { display: flex; align-items: center; gap: 10px; }
+  .setting-item label { font-size: 0.92rem; color: #374151; font-weight: 500; white-space: nowrap; }
+  .setting-item input[type=number] {
+    width: 80px; padding: 6px 10px; border: 1.5px solid #d1d5db;
+    border-radius: 8px; font-size: 0.92rem; outline: none;
+    transition: border-color .2s;
+  }
+  .setting-item input[type=number]:focus { border-color: #1a56db; }
 
-/* File info */
-.file-info {
-  background: #e8f5e9; border-radius: 8px; padding: 12px 18px;
-  margin-bottom: 20px; display: none; font-size: 14px; color: #2e7d32;
-  border: 1px solid #a5d6a7;
-}
-.file-info .filename { font-weight: 700; }
+  .btn-generate {
+    background: linear-gradient(135deg, #1a56db, #0ea5e9);
+    color: white; border: none; padding: 10px 28px;
+    border-radius: 10px; font-size: 0.97rem; font-weight: 600;
+    cursor: pointer; transition: all .2s; white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(26,86,219,0.25);
+  }
+  .btn-generate:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(26,86,219,0.35); }
+  .btn-generate:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
-/* Progress */
-.progress-bar { display: none; margin-bottom: 20px; }
-.progress-bar .bar-bg { background: #e0e0e0; border-radius: 6px; height: 8px; overflow: hidden; }
-.progress-bar .bar-fill { background: linear-gradient(90deg, #1a73e8, #42a5f5); height: 100%; border-radius: 6px; transition: width .3s; }
-.progress-bar .bar-text { font-size: 13px; color: #666; margin-top: 4px; text-align: center; }
+  /* 文件信息 */
+  .file-info {
+    display: none;
+    background: #f0fdf4;
+    border: 1.5px solid #86efac;
+    border-radius: 10px;
+    padding: 12px 18px;
+    margin-top: 14px;
+    font-size: 0.9rem;
+    color: #166534;
+  }
+  .file-info.show { display: flex; align-items: center; gap: 10px; }
+  .file-info strong { color: #15803d; }
 
-/* Results */
-.results { display: none; }
-.results-header {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
-}
-.results-header h2 { font-size: 20px; color: #1a73e8; }
-.results-header .stats { font-size: 13px; color: #888; }
+  /* 状态/进度 */
+  .status-bar {
+    display: none;
+    background: white;
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-top: 16px;
+    font-size: 0.9rem;
+    color: #374151;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    align-items: center;
+    gap: 12px;
+  }
+  .status-bar.show { display: flex; }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2.5px solid #e2e8f0;
+    border-top-color: #1a56db;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-.btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
-.btn-action {
-  padding: 8px 20px; border-radius: 6px; font-size: 13px; font-weight: 600;
-  cursor: pointer; border: 1px solid; transition: all .2s;
-}
-.btn-copy { background: #fff; color: #1a73e8; border-color: #1a73e8; }
-.btn-copy:hover { background: #e8f0fe; }
-.btn-download { background: #0d8a4a; color: #fff; border-color: #0d8a4a; }
-.btn-download:hover { background: #0a7a40; }
-.btn-clear { background: #fff; color: #e53935; border-color: #e53935; }
-.btn-clear:hover { background: #fce4ec; }
+  /* 结果区 */
+  .result-card {
+    display: none;
+    background: white;
+    border-radius: 16px;
+    margin-top: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    overflow: hidden;
+  }
+  .result-card.show { display: block; }
 
-/* Table */
-.table-wrap {
-  background: #fff; border-radius: 12px; overflow: hidden;
-  box-shadow: 0 1px 6px rgba(0,0,0,.08);
-}
-.table-wrap table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.table-wrap thead th {
-  background: #1a73e8; color: #fff; padding: 12px 14px;
-  text-align: left; font-weight: 600; position: sticky; top: 0; z-index: 2;
-  white-space: nowrap;
-}
-.table-wrap thead th:nth-child(1) { width: 180px; }
-.table-wrap thead th:nth-child(2) { width: 50px; text-align: center; }
-.table-wrap thead th:nth-child(4) { width: 70px; text-align: center; }
-.table-wrap tbody td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; }
-.table-wrap tbody tr:hover { background: #f5f8ff; }
-.table-wrap tbody tr:nth-child(even) { background: #fafbfc; }
-.table-wrap tbody tr:nth-child(even):hover { background: #f0f4ff; }
-.table-wrap tbody td:nth-child(2) { text-align: center; color: #888; }
-.table-wrap tbody td:nth-child(4) { text-align: center; font-weight: 600; }
+  .result-header {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .result-stats { display: flex; gap: 16px; flex-wrap: wrap; }
+  .stat-chip {
+    font-size: 0.83rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .stat-green  { background: #dcfce7; color: #166534; }
+  .stat-yellow { background: #fef9c3; color: #854d0e; }
+  .stat-gray   { background: #f1f5f9; color: #475569; }
 
-.chars-green { color: #1b5e20; background: #e8f5e9; border-radius: 4px; padding: 2px 8px; }
-.chars-yellow { color: #e65100; background: #fff3e0; border-radius: 4px; padding: 2px 8px; }
-.chars-red { color: #b71c1c; background: #fce4ec; border-radius: 4px; padding: 2px 8px; }
+  .btn-download {
+    background: #16a34a; color: white; border: none;
+    padding: 8px 20px; border-radius: 8px; font-size: 0.88rem;
+    font-weight: 600; cursor: pointer; transition: all .2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-download:hover { background: #15803d; transform: translateY(-1px); }
 
-.root-divider td { background: #e3f2fd !important; font-weight: 700; color: #1565c0; padding: 8px 14px !important; }
+  .root-tag {
+    font-size: 0.84rem;
+    color: #6366f1;
+    font-weight: 500;
+    padding: 0 22px 12px;
+    border-bottom: 1px solid #e2e8f0;
+  }
 
-/* Toast */
-.toast {
-  position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
-  background: #323232; color: #fff; padding: 12px 28px; border-radius: 8px;
-  font-size: 14px; z-index: 9999; opacity: 0; transition: opacity .3s;
-  pointer-events: none; box-shadow: 0 4px 16px rgba(0,0,0,.3);
-}
-.toast.show { opacity: 1; }
+  /* 表格 */
+  .table-wrap { overflow-x: auto; max-height: 520px; overflow-y: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  thead { position: sticky; top: 0; z-index: 2; }
+  thead th {
+    background: #1e3a8a; color: white;
+    padding: 10px 14px; text-align: left;
+    font-weight: 600; white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid #f1f5f9; }
+  tbody tr:hover { background: #f8fafc; }
+  td { padding: 9px 14px; }
+  td:first-child { color: #94a3b8; width: 48px; text-align: center; }
+  td:nth-child(2) { width: 56px; text-align: center; font-variant-numeric: tabular-nums; }
+  .cell-green  { background: #dcfce7; }
+  .cell-yellow { background: #fef9c3; }
 
+  /* 说明 */
+  .guide-card {
+    background: white;
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-top: 20px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+  }
+  .guide-card h3 { font-size: 0.97rem; font-weight: 700; color: #1e3a8a; margin-bottom: 14px; }
+  .guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 600px) { .guide-grid { grid-template-columns: 1fr; } }
+  .guide-item {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.85rem;
+    color: #374151;
+    line-height: 1.6;
+    border-left: 3px solid #1a56db;
+  }
+  .guide-item strong { color: #1e3a8a; }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .container { padding: 12px; }
-  .settings { flex-direction: column; align-items: flex-start; }
-  .results-header { flex-direction: column; }
-}
+  .footer { text-align: center; font-size: 0.8rem; color: #94a3b8; margin-top: 36px; }
 
-
-
+  /* 错误提示 */
+  .error-msg {
+    display: none;
+    background: #fef2f2; border: 1.5px solid #fca5a5;
+    border-radius: 10px; padding: 12px 18px;
+    color: #b91c1c; font-size: 0.9rem;
+    margin-top: 14px;
+  }
+  .error-msg.show { display: block; }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>📋 一键组标题</h1>
-  <p>阿里国际站标题生成器 — 拖入 Excel 表格，一键生成128字符标题</p>
+  <h1>🏷️ 国际站一键组标题工具</h1>
+  <p>上传热词表 → 自动识别词根 → 生成100条标题 → 下载Excel</p>
 </div>
 
 <div class="container">
 
+  <!-- 上传区 -->
   <div class="upload-area" id="uploadArea">
-    <div class="icon">📂</div>
-    <div class="main-text">点击上传 或 拖拽 Excel 文件到这里</div>
-    <div class="sub-text">支持 .xlsx / .xls 格式</div>
-    <input type="file" id="fileInput" accept=".xlsx,.xls">
+    <input type="file" class="upload-input" id="fileInput"
+           accept=".xlsx,.xls,.docx,.doc">
+    <span class="upload-icon">📂</span>
+    <div class="upload-title">点击上传 或 拖拽文件到这里</div>
+    <div class="upload-sub">支持 .xlsx &nbsp;/&nbsp; .xls &nbsp;/&nbsp; .docx &nbsp;/&nbsp; .doc 格式</div>
   </div>
 
+  <!-- 文件信息 -->
   <div class="file-info" id="fileInfo">
-    ✅ 已加载文件：<span class="filename" id="fileName"></span>，
-    共 <span id="kwCount">0</span> 个关键词，<span id="rootCount">0</span> 个词根
+    <span>✅</span>
+    <span>已加载：<strong id="fileName">-</strong> &nbsp;|&nbsp; 关键词 <strong id="kwCount">0</strong> 条 &nbsp;|&nbsp; 词根：<strong id="rootWord">-</strong></span>
   </div>
 
-  <div class="settings">
-    <div>
-      <label>每个词根生成标题数：</label>
-      <input type="number" id="titleCount" value="100" min="1" max="500">
-      <span class="info">（建议 50–200）</span>
+  <!-- 错误提示 -->
+  <div class="error-msg" id="errorMsg"></div>
+
+  <!-- 设置区 -->
+  <div class="settings-card">
+    <div class="setting-item">
+      <label>生成数量</label>
+      <input type="number" id="countInput" value="100" min="10" max="500">
+      <span style="font-size:.85rem;color:#64748b">条</span>
     </div>
-    <div>
-      <label>最大字符数：</label>
-      <input type="number" id="maxChars" value="128" min="60" max="200">
+    <button class="btn-generate" id="btnGenerate" disabled onclick="generate()">
+      🚀 一键组标题
+    </button>
+  </div>
+
+  <!-- 状态条 -->
+  <div class="status-bar" id="statusBar">
+    <div class="spinner"></div>
+    <span id="statusText">处理中...</span>
+  </div>
+
+  <!-- 结果区 -->
+  <div class="result-card" id="resultCard">
+    <div class="result-header">
+      <div class="result-stats" id="resultStats"></div>
+      <button class="btn-download" onclick="downloadExcel()">⬇️ 下载 Excel</button>
     </div>
-    <button class="btn-generate" id="btnGenerate" disabled>🚀 一键生成标题</button>
+    <div class="root-tag" id="rootTag"></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>字符</th>
+            <th>标题</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
   </div>
 
-  <div class="progress-bar" id="progressBar">
-    <div class="bar-bg"><div class="bar-fill" id="barFill" style="width:0"></div></div>
-    <div class="bar-text" id="barText">准备中...</div>
-  </div>
-
-  <div class="results" id="results">
-    <div class="results-header">
-      <div>
-        <h2>📊 生成结果</h2>
-        <div class="stats" id="statsText"></div>
+  <!-- 使用说明 -->
+  <div class="guide-card">
+    <h3>📋 使用说明</h3>
+    <div class="guide-grid">
+      <div class="guide-item">
+        <strong>表格格式</strong><br>
+        国际站热词导出文件（.xls）<br>
+        A列=关键词，B列=搜索指数<br>
+        无需整理，直接上传原始文件
       </div>
-      <div class="btn-group">
-        <button class="btn-action btn-copy" onclick="copyTable()">📋 复制表格</button>
-        <button class="btn-action btn-download" onclick="downloadExcel()">⬇️ 下载 Excel</button>
-        <button class="btn-action btn-clear" onclick="clearAll()">🗑️ 清空重来</button>
+      <div class="guide-item">
+        <strong>词根识别</strong><br>
+        自动识别搜索指数最高、<br>
+        覆盖率最广的核心词组作为词根<br>
+        词根固定出现在每条标题最右边
+      </div>
+      <div class="guide-item">
+        <strong>组合规则</strong><br>
+        • 词根固定最右<br>
+        • 按指数高→低从左→右排列<br>
+        • 同标题内单词不重复<br>
+        • 每条标题 ≤128字符，尽量填满
+      </div>
+      <div class="guide-item">
+        <strong>颜色说明</strong><br>
+        🟢 绿色：字符数 ≥ 120（优质）<br>
+        🟡 黄色：字符数 &lt; 100（偏短）<br>
+        首字母大写，冠词/介词小写
       </div>
     </div>
-    <div class="table-wrap" id="tableWrap"></div>
   </div>
 
+  <div class="footer">Made for Alibaba International · 国际站运营专用</div>
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script>
-// ==================== Global State ====================
-let parsedData = {}; // { root: [{kw, index}] }
-let generatedResults = []; // [{root, seq, title, chars}]
+// ============================================================
+//  核心常量
+// ============================================================
+const MAX_LEN = 128;
 
-// ==================== Upload ====================
+const SMALL_WORDS = new Set([
+  'a','an','the','and','or','but','for','nor','so','yet',
+  'at','by','in','of','on','to','up','as','is','it','vs','via','per'
+]);
+
+const BLACKLIST = [
+  /^felicity/i, /^kksky$/i, /^jsot/i, /^haien/i, /^faft/i,
+  /^tnt$/i, /^jd$/i, /^jd-/i, /^yeelite/i, /^sunc/i,
+  /^akko/i, /^gefolly/i, /^alltops/i, /^supersun/i, /^jindian/i,
+  /^kcd\s/i, /^hn-/i, /^mj-/i, /\bsamevpanel\b/i,
+  /^sellers/i, /^ddp/i, /^by-\d/i, /^nss$/i, /^cvtv/i, /^kamera/i,
+  /^\d+\s*$/, /^[\d\-.]+$/
+];
+
+// ============================================================
+//  工具函数
+// ============================================================
+function isBlacklisted(s) {
+  return BLACKLIST.some(r => r.test(s));
+}
+
+function titleCase(s) {
+  return s.split(' ').map((w, i) => {
+    const wl = w.toLowerCase();
+    if (i === 0) return w ? w[0].toUpperCase() + w.slice(1) : w;
+    if (SMALL_WORDS.has(wl) && wl.length < 4) return wl;
+    return w ? w[0].toUpperCase() + w.slice(1) : w;
+  }).join(' ');
+}
+
+function weightedShuffle(arr) {
+  // arr: [{extra, weight}, ...]
+  const out = [];
+  const pool = [...arr];
+  while (pool.length) {
+    const total = pool.reduce((s, x) => s + x.weight, 0);
+    let r = Math.random() * total;
+    let idx = 0;
+    for (; idx < pool.length - 1; idx++) {
+      r -= pool[idx].weight;
+      if (r <= 0) break;
+    }
+    out.push(pool[idx].extra);
+    pool.splice(idx, 1);
+  }
+  return out;
+}
+
+// ============================================================
+//  读取文件 -> [(keyword, index), ...]
+// ============================================================
+function parseWorkbook(wb) {
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+  const rows = [];
+  let dataStart = 0;
+
+  // 找"关键词"表头行
+  for (let i = 0; i < Math.min(12, data.length); i++) {
+    const v = String(data[i][0] || '').trim().toLowerCase();
+    if (v === '关键词' || v === 'keyword' || v === 'keywords') {
+      dataStart = i + 1; break;
+    }
+  }
+  // 如果没找到，从第一个有内容的行开始
+  if (dataStart === 0) {
+    for (let i = 0; i < data.length; i++) {
+      const v = String(data[i][0] || '').trim();
+      if (v && !/hot\s*search|关键词|keyword/i.test(v)) {
+        dataStart = i; break;
+      }
+    }
+  }
+
+  for (let i = dataStart; i < data.length; i++) {
+    const kw  = String(data[i][0] || '').trim().toLowerCase();
+    const idx = parseFloat(data[i][1]);
+    if (kw && !isNaN(idx) && idx > 0) {
+      rows.push([kw, idx]);
+    }
+  }
+  return rows;
+}
+
+// ============================================================
+//  识别词根
+// ============================================================
+function detectRoot(rawKws) {
+  const sorted = [...rawKws].sort((a, b) => b[1] - a[1]);
+  const topKw = sorted[0][0];
+  const topWords = topKw.split(' ');
+  const total = rawKws.length;
+
+  if (topWords.length <= 3) return topKw;
+
+  // 从最长到最短扫描 topKw 的前缀，找覆盖率≥60%的最长前缀
+  let best = topKw;
+  for (let len = topWords.length; len >= 2; len--) {
+    const candidate = topWords.slice(0, len).join(' ');
+    const count = rawKws.filter(([kw]) => kw.includes(candidate)).length;
+    if (count / total >= 0.6) { best = candidate; break; }
+  }
+  return best;
+}
+
+// ============================================================
+//  提取附加词块
+// ============================================================
+function extractExtras(rawKws, root) {
+  const rootWords = new Set(root.split(' '));
+  const extraMap  = new Map();
+
+  for (const [kw, idx] of rawKws) {
+    const clean = kw.replace(/[^\w\s-]/g, ' ').replace(/\s+/g, ' ').trim();
+    const extra = clean.split(' ').filter(w => !rootWords.has(w)).join(' ').trim();
+    if (!extra) continue;
+    const wc = extra.split(' ').length;
+    if (wc < 1 || wc > 6 || extra.length > 45) continue;
+    if (isBlacklisted(extra)) continue;
+    if (!extraMap.has(extra) || extraMap.get(extra) < idx) {
+      extraMap.set(extra, idx);
+    }
+  }
+
+  return [...extraMap.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([extra, weight]) => ({ extra, weight }));
+}
+
+// ============================================================
+//  组一条标题
+// ============================================================
+function buildOneTitle(startExtra, allExtras, root) {
+  const chosen = [startExtra];
+  const usedWords = new Set(startExtra.split(' '));
+
+  const shuffled = weightedShuffle(
+    allExtras.filter(x => x.extra !== startExtra)
+  );
+
+  for (const extra of shuffled) {
+    const ws2 = new Set(extra.split(' '));
+    if ([...ws2].some(w => usedWords.has(w))) continue;
+    const test = [...chosen, extra].join(' ') + ' ' + root;
+    if (test.length > MAX_LEN) continue;
+    chosen.push(extra);
+    for (const w of ws2) usedWords.add(w);
+  }
+
+  return titleCase(chosen.join(' ') + ' ' + root);
+}
+
+// ============================================================
+//  生成 N 条标题
+// ============================================================
+function generateTitles(rawKws, root, target = 100) {
+  const extras = extractExtras(rawKws, root);
+  if (!extras.length) return [];
+
+  let startPool = extras.map(x => x.extra);
+  // 打乱并补足
+  for (let i = startPool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [startPool[i], startPool[j]] = [startPool[j], startPool[i]];
+  }
+  while (startPool.length < target) startPool = [...startPool, ...startPool];
+  startPool = startPool.slice(0, target);
+
+  const titles = startPool.map(start => {
+    const t = buildOneTitle(start, extras, root);
+    return { len: t.length, title: t };
+  });
+
+  // 打乱顺序
+  for (let i = titles.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [titles[i], titles[j]] = [titles[j], titles[i]];
+  }
+  return titles;
+}
+
+// ============================================================
+//  状态变量
+// ============================================================
+let currentTitles = [];
+let currentRoot   = '';
+let currentFile   = null;
+
+// ============================================================
+//  文件处理
+// ============================================================
 const uploadArea = document.getElementById('uploadArea');
-const fileInput = document.getElementById('fileInput');
+const fileInput  = document.getElementById('fileInput');
 
-uploadArea.addEventListener('click', () => fileInput.click());
-uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
-uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+uploadArea.addEventListener('dragover', e => {
+  e.preventDefault(); uploadArea.classList.add('drag-over');
+});
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
 uploadArea.addEventListener('drop', e => {
   e.preventDefault();
-  uploadArea.classList.remove('dragover');
-  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  uploadArea.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
 });
-fileInput.addEventListener('change', e => { if (e.target.files.length) handleFile(e.target.files[0]); });
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) handleFile(fileInput.files[0]);
+});
 
 function handleFile(file) {
-  if (!/\.xlsx?$/i.test(file.name)) { showToast('❌ 请上传 .xlsx 或 .xls 格式文件'); return; }
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['xlsx','xls','docx','doc'].includes(ext)) {
+    showError('请上传 .xlsx / .xls / .docx / .doc 格式的文件');
+    return;
+  }
+  hideError();
+  currentFile = file;
+
   const reader = new FileReader();
   reader.onload = e => {
     try {
-      const wb = XLSX.read(e.target.result, { type: 'array' });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
-      parseData(rows, file.name);
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, { type: 'array' });
+      const rawKws = parseWorkbook(wb);
+
+      if (!rawKws.length) {
+        showError('未读取到关键词数据，请确认文件格式：A列=关键词，B列=搜索指数');
+        return;
+      }
+
+      currentRoot = detectRoot(rawKws);
+      window._rawKws = rawKws;
+
+      document.getElementById('fileName').textContent = file.name;
+      document.getElementById('kwCount').textContent  = rawKws.length;
+      document.getElementById('rootWord').textContent = currentRoot;
+      document.getElementById('fileInfo').classList.add('show');
+      document.getElementById('btnGenerate').disabled = false;
     } catch (err) {
-      showToast('❌ 文件解析失败：' + err.message);
+      showError('文件解析失败：' + err.message);
     }
   };
   reader.readAsArrayBuffer(file);
 }
 
-function parseData(rows, filename) {
-  parsedData = {};
-  const seenKw = {};
-  let totalKw = 0;
+// ============================================================
+//  生成标题
+// ============================================================
+function generate() {
+  const target = parseInt(document.getElementById('countInput').value) || 100;
+  const rawKws = window._rawKws;
+  if (!rawKws) return;
 
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i];
-    if (!row || !row[0]) continue;
-    const root = String(row[0]).trim();
-    const kwEn = row[1] ? String(row[1]).trim() : '';
-    let searchIdx = 0;
-    // Try col index 3 first (搜索指数), fallback to col 2
-    if (row[3] !== undefined && row[3] !== null && row[3] !== '') {
-      searchIdx = parseInt(row[3]) || 0;
-    } else if (row[2] !== undefined && !isNaN(parseInt(row[2]))) {
-      searchIdx = parseInt(row[2]) || 0;
+  setStatus(true, '正在组合标题...');
+  document.getElementById('btnGenerate').disabled = true;
+
+  setTimeout(() => {
+    try {
+      currentRoot   = detectRoot(rawKws);
+      currentTitles = generateTitles(rawKws, currentRoot, target);
+      renderResult();
+    } catch (err) {
+      showError('生成失败：' + err.message);
+    } finally {
+      setStatus(false);
+      document.getElementById('btnGenerate').disabled = false;
     }
-
-    if (!kwEn || kwEn === root || kwEn === 'nan' || kwEn === 'undefined') continue;
-
-    if (!parsedData[root]) { parsedData[root] = []; seenKw[root] = new Set(); }
-    if (!seenKw[root].has(kwEn.toLowerCase())) {
-      seenKw[root].add(kwEn.toLowerCase());
-      parsedData[root].push({ kw: kwEn, index: searchIdx });
-      totalKw++;
-    }
-  }
-
-  const rootCount = Object.keys(parsedData).length;
-  if (rootCount === 0) { showToast('❌ 未识别到有效数据，请检查表格格式'); return; }
-
-  document.getElementById('fileInfo').style.display = 'block';
-  document.getElementById('fileName').textContent = filename;
-  document.getElementById('kwCount').textContent = totalKw;
-  document.getElementById('rootCount').textContent = rootCount;
-  document.getElementById('btnGenerate').disabled = false;
-  uploadArea.querySelector('.main-text').textContent = '✅ 文件已加载，点击可重新上传';
-  showToast('✅ 文件解析成功！');
+  }, 30);
 }
 
-// ==================== Title Generation ====================
-const SMALL_WORDS = new Set(['a','an','the','and','but','or','nor','for','yet','so','at','by','in','of','on','to','up','as','is','it','if','no','do']);
-const SKIP_WORDS = new Set([
-  '$50.40','ws-3','dy-2kg','gree','r500','hb','m2','b',
-  'eletric','coffeee','lgs','ga','>',
-  'wintop','santoker','master','kktect','sonifer','blueking',
-  'dalian','dongyi','simonelli','probat','hottop','yoshan','gene','cafe',
-  '110v','220v','110','v','kg','k','1kgbean','cocoa'
-]);
-const TYPO_FIX = { 'eletric': 'electric', 'coffeee': 'coffee', 'programed': 'programmed' };
+// ============================================================
+//  渲染结果
+// ============================================================
+function renderResult() {
+  const titles = currentTitles;
+  const cntG = titles.filter(x => x.len >= 120).length;
+  const cntM = titles.filter(x => x.len >= 100 && x.len < 120).length;
+  const cntY = titles.filter(x => x.len < 100).length;
 
-function titleCase(s) {
-  return s.split(' ').map((w, i) => {
-    if (!w) return '';
-    if (i === 0) return w[0].toUpperCase() + w.slice(1);
-    if (SMALL_WORDS.has(w.toLowerCase()) && w.length < 4) return w.toLowerCase();
-    return w[0].toUpperCase() + w.slice(1);
-  }).join(' ');
-}
+  document.getElementById('resultStats').innerHTML = `
+    <span class="stat-chip stat-gray">共 ${titles.length} 条</span>
+    <span class="stat-chip stat-green">绿(≥120) ${cntG}</span>
+    ${cntM ? `<span class="stat-chip stat-gray">中(100-119) ${cntM}</span>` : ''}
+    ${cntY ? `<span class="stat-chip stat-yellow">黄(&lt;100) ${cntY}</span>` : ''}
+  `;
+  document.getElementById('rootTag').textContent = `词根：${currentRoot}`;
 
-function cleanWord(w) {
-  w = w.replace(/^[,\-\/\(\)"']+|[,\-\/\(\)"']+$/g, '');
-  if (!w) return null;
-  if (SKIP_WORDS.has(w.toLowerCase())) return null;
-  if (w.startsWith('$') || w.startsWith('-')) return null;
-  if (!/[a-zA-Z]/.test(w)) return null;
-  if (TYPO_FIX[w.toLowerCase()]) w = TYPO_FIX[w.toLowerCase()];
-  return w;
-}
-
-function extractNewWords(keyword, rootWords, usedWords) {
-  const words = keyword.toLowerCase().split(/\s+/);
-  const result = [];
-  const added = new Set();
-  for (let w of words) {
-    w = cleanWord(w);
-    if (w && !rootWords.has(w.toLowerCase()) && !usedWords.has(w.toLowerCase()) && !added.has(w.toLowerCase())) {
-      result.push(w);
-      added.add(w.toLowerCase());
-    }
-  }
-  return result;
-}
-
-// Simple seeded random
-function seededRandom(seed) {
-  let s = seed % 2147483647;
-  if (s <= 0) s += 2147483646;
-  return () => { s = s * 16807 % 2147483647; return (s - 1) / 2147483646; };
-}
-
-function shuffleArray(arr, rng) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-function buildTitles(root, keywords, numTitles, maxChars) {
-  const titles = [];
-  if (!keywords.length) return titles;
-
-  const rootWords = new Set(root.toLowerCase().split(/\s+/));
-
-  // Sort by index desc, stable — higher index = higher priority
-  const sorted = [...keywords].sort((a, b) => b.index - a.index);
-
-  // Group into tiers by index value (same index = same tier, shuffled within)
-  const tiers = [];
-  let lastIdx = null;
-  for (const item of sorted) {
-    if (item.index !== lastIdx) { tiers.push([]); lastIdx = item.index; }
-    tiers[tiers.length - 1].push(item);
-  }
-
-  const titleSet = new Set();
-
-  for (let attempt = 0; attempt < numTitles * 20 && titles.length < numTitles; attempt++) {
-    const rng = seededRandom(attempt * 233 + titles.length * 97 + 7);
-
-    const usedWords = new Set(rootWords);
-    const selectedParts = [];   // each element = array of words from one keyword
-    let remaining = maxChars - root.length - 1; // -1 for the space before root
-
-    // Build ordered list: within each tier shuffle randomly, tiers stay high→low
-    const available = [];
-    for (const tier of tiers) {
-      const copy = [...tier];
-      shuffleArray(copy, rng);
-      available.push(...copy);
-    }
-
-    // Greedy fill: pick every keyword whose new words fit
-    for (const item of available) {
-      const newWords = extractNewWords(item.kw, rootWords, usedWords);
-      if (!newWords.length) continue;
-      const chunk = newWords.join(' ');
-      const needed = chunk.length + 1; // +1 for leading space
-      if (needed <= remaining) {
-        selectedParts.push(newWords);
-        newWords.forEach(w => usedWords.add(w.toLowerCase()));
-        remaining -= needed;
-      }
-    }
-
-    if (!selectedParts.length) continue;
-
-    // Shuffle the collected word-blocks (root stays anchored at right)
-    shuffleArray(selectedParts, rng);
-
-    const allWords = selectedParts.flat().concat(root.split(/\s+/));
-    const formatted = titleCase(allWords.join(' '));
-
-    if (formatted.length <= maxChars && !titleSet.has(formatted)) {
-      titleSet.add(formatted);
-      titles.push(formatted);
-    }
-  }
-  return titles;
-}
-
-// ==================== Generate Button ====================
-document.getElementById('btnGenerate').addEventListener('click', () => {
-  const numTitles = parseInt(document.getElementById('titleCount').value) || 100;
-  const maxChars = parseInt(document.getElementById('maxChars').value) || 128;
-  generatedResults = [];
-
-  const progressBar = document.getElementById('progressBar');
-  const barFill = document.getElementById('barFill');
-  const barText = document.getElementById('barText');
-  progressBar.style.display = 'block';
-
-  const roots = Object.keys(parsedData);
-  let processed = 0;
-
-  function processNext() {
-    if (processed >= roots.length) {
-      barFill.style.width = '100%';
-      barText.textContent = `✅ 完成！共生成 ${generatedResults.length} 条标题`;
-      setTimeout(() => { progressBar.style.display = 'none'; renderResults(); }, 600);
-      return;
-    }
-
-    const root = roots[processed];
-    const pct = Math.round((processed / roots.length) * 100);
-    barFill.style.width = pct + '%';
-    barText.textContent = `正在生成 [${root}] ... (${processed + 1}/${roots.length})`;
-
-    setTimeout(() => {
-      const titles = buildTitles(root, parsedData[root], numTitles, maxChars);
-      titles.forEach((t, i) => {
-        generatedResults.push({ root, seq: i + 1, title: t, chars: t.length });
-      });
-      processed++;
-      processNext();
-    }, 10);
-  }
-
-  processNext();
-});
-
-// ==================== Render Results ====================
-function renderResults() {
-  if (!generatedResults.length) return;
-
-  const results = document.getElementById('results');
-  results.style.display = 'block';
-
-  // Stats
-  const rootStats = {};
-  generatedResults.forEach(r => {
-    if (!rootStats[r.root]) rootStats[r.root] = { count: 0, min: 999, max: 0, total: 0 };
-    rootStats[r.root].count++;
-    rootStats[r.root].min = Math.min(rootStats[r.root].min, r.chars);
-    rootStats[r.root].max = Math.max(rootStats[r.root].max, r.chars);
-    rootStats[r.root].total += r.chars;
-  });
-
-  let statsHtml = `共 ${generatedResults.length} 条标题 | `;
-  for (const [root, s] of Object.entries(rootStats)) {
-    statsHtml += `[${root}] ${s.count}条 (${s.min}-${s.max}字符, 均${Math.round(s.total / s.count)}) &nbsp;`;
-  }
-  document.getElementById('statsText').innerHTML = statsHtml;
-
-  // Table
-  let html = '<table id="resultTable"><thead><tr><th>词根</th><th>序号</th><th>组合标题</th><th>字符数</th></tr></thead><tbody>';
-
-  let lastRoot = '';
-  generatedResults.forEach(r => {
-    if (r.root !== lastRoot) {
-      if (lastRoot) html += `<tr class="root-divider"><td colspan="4">▼ ${r.root}</td></tr>`;
-      else html += `<tr class="root-divider"><td colspan="4">▼ ${r.root}</td></tr>`;
-      lastRoot = r.root;
-    }
-
-    let charsClass = 'chars-green';
-    if (r.chars < 90) charsClass = 'chars-red';
-    else if (r.chars < 115) charsClass = 'chars-yellow';
-
-    html += `<tr>
-      <td>${r.root}</td>
-      <td>${r.seq}</td>
-      <td>${r.title}</td>
-      <td><span class="${charsClass}">${r.chars}</span></td>
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = titles.map((x, i) => {
+    const cls = x.len >= 120 ? 'cell-green' : x.len < 100 ? 'cell-yellow' : '';
+    return `<tr>
+      <td>${i + 1}</td>
+      <td class="${cls}">${x.len}</td>
+      <td>${x.title}</td>
     </tr>`;
-  });
+  }).join('');
 
-  html += '</tbody></table>';
-  document.getElementById('tableWrap').innerHTML = html;
-  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('resultCard').classList.add('show');
+  document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// ==================== Copy ====================
-function copyTable() {
-  if (!generatedResults.length) return;
-  let text = '词根\t序号\t组合标题\t字符数\n';
-  generatedResults.forEach(r => {
-    text += `${r.root}\t${r.seq}\t${r.title}\t${r.chars}\n`;
-  });
-
-  navigator.clipboard.writeText(text).then(() => {
-    showToast('✅ 已复制到剪贴板！可直接粘贴到 Excel');
-  }).catch(() => {
-    // Fallback
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast('✅ 已复制到剪贴板！');
-  });
-}
-
-// ==================== Download Excel ====================
+// ============================================================
+//  下载 Excel
+// ============================================================
 function downloadExcel() {
-  if (!generatedResults.length) return;
+  if (!currentTitles.length) return;
 
-  const wsData = [['词根', '序号', '组合标题', '字符数']];
-  generatedResults.forEach(r => wsData.push([r.root, r.seq, r.title, r.chars]));
-
-  const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-  // Column widths
-  ws['!cols'] = [{ wch: 25 }, { wch: 8 }, { wch: 100 }, { wch: 10 }];
+  const wsData = [['序号', '字符数', '标题']];
+  currentTitles.forEach((x, i) => wsData.push([i + 1, x.len, x.title]));
 
   const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  // 列宽
+  ws['!cols'] = [{ wch: 6 }, { wch: 8 }, { wch: 110 }];
+
   XLSX.utils.book_append_sheet(wb, ws, '组合标题');
 
-  const now = new Date();
-  const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
-  XLSX.writeFile(wb, `阿里国际站组合标题_${dateStr}.xlsx`);
-  showToast('✅ Excel 文件已下载！');
+  const fname = (currentRoot || 'titles').replace(/\s+/g, '_');
+  XLSX.writeFile(wb, `${fname}-组合标题${currentTitles.length}条.xlsx`);
 }
 
-// ==================== Clear ====================
-function clearAll() {
-  parsedData = {};
-  generatedResults = [];
-  document.getElementById('results').style.display = 'none';
-  document.getElementById('fileInfo').style.display = 'none';
-  document.getElementById('tableWrap').innerHTML = '';
-  document.getElementById('btnGenerate').disabled = true;
-  uploadArea.querySelector('.main-text').textContent = '点击上传 或 拖拽 Excel 文件到这里';
-  fileInput.value = '';
-  showToast('🗑️ 已清空');
+// ============================================================
+//  UI helpers
+// ============================================================
+function setStatus(show, msg = '') {
+  const bar = document.getElementById('statusBar');
+  bar.classList.toggle('show', show);
+  if (msg) document.getElementById('statusText').textContent = msg;
 }
 
-// ==================== Toast ====================
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg; el.classList.add('show');
+}
+function hideError() {
+  document.getElementById('errorMsg').classList.remove('show');
 }
 </script>
 </body>
