@@ -6,227 +6,276 @@
 <title>国际站一键组标题工具</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: #f0f4f8;
+  min-height: 100vh;
+  color: #1a202c;
+}
+.header {
+  background: linear-gradient(135deg, #1a56db 0%, #0ea5e9 100%);
+  color: white;
+  padding: 26px 0 22px;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(26,86,219,0.18);
+}
+.header h1 { font-size: 1.65rem; font-weight: 700; letter-spacing: 1px; }
+.header p  { margin-top: 6px; font-size: 0.88rem; opacity: 0.85; }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    background: #f0f4f8;
-    min-height: 100vh;
-    color: #1a202c;
-  }
+.container { max-width: 900px; margin: 28px auto; padding: 0 16px 60px; }
 
-  .header {
-    background: linear-gradient(135deg, #1a56db 0%, #0ea5e9 100%);
-    color: white;
-    padding: 28px 0 24px;
-    text-align: center;
-    box-shadow: 0 2px 12px rgba(26,86,219,0.18);
-  }
-  .header h1 { font-size: 1.7rem; font-weight: 700; letter-spacing: 1px; }
-  .header p  { margin-top: 6px; font-size: 0.92rem; opacity: 0.88; }
+/* ── 上传区 ── */
+.upload-area {
+  background: white;
+  border: 2.5px dashed #93c5fd;
+  border-radius: 16px;
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+}
+.upload-area:hover, .upload-area.drag-over {
+  border-color: #1a56db;
+  background: #eff6ff;
+  transform: scale(1.01);
+}
+.upload-icon  { font-size: 3rem; margin-bottom: 12px; display: block; }
+.upload-title { font-size: 1.1rem; font-weight: 600; color: #1e3a8a; margin-bottom: 6px; }
+.upload-sub   { font-size: 0.85rem; color: #64748b; }
+.upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 
-  .container { max-width: 900px; margin: 32px auto; padding: 0 16px 60px; }
+/* ── STEP 2: 词根确认区 ── */
+.step-card {
+  background: white;
+  border-radius: 14px;
+  padding: 22px 24px;
+  margin-top: 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+  display: none;
+}
+.step-card.show { display: block; }
+.step-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #6366f1;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  margin-bottom: 14px;
+}
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #166534;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+}
+.file-row strong { color: #15803d; }
 
-  /* 上传区 */
-  .upload-area {
-    background: white;
-    border: 2.5px dashed #93c5fd;
-    border-radius: 16px;
-    padding: 52px 24px;
-    text-align: center;
-    cursor: pointer;
-    transition: all .22s;
-    position: relative;
-  }
-  .upload-area:hover, .upload-area.drag-over {
-    border-color: #1a56db;
-    background: #eff6ff;
-    transform: scale(1.012);
-  }
-  .upload-icon { font-size: 3.2rem; margin-bottom: 14px; display: block; }
-  .upload-title { font-size: 1.15rem; font-weight: 600; color: #1e3a8a; margin-bottom: 6px; }
-  .upload-sub   { font-size: 0.87rem; color: #64748b; }
-  .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.root-section { margin-bottom: 18px; }
+.root-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.root-label .badge {
+  background: #dbeafe;
+  color: #1e40af;
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+.root-input-row { display: flex; gap: 10px; align-items: center; }
+.root-input {
+  flex: 1;
+  padding: 9px 14px;
+  border: 2px solid #6366f1;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e1b4b;
+  outline: none;
+  transition: border-color .2s;
+  background: #fafafa;
+}
+.root-input:focus { border-color: #1a56db; background: white; }
+.root-hint {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-top: 6px;
+}
 
-  /* 设置区 */
-  .settings-card {
-    background: white;
-    border-radius: 14px;
-    padding: 22px 24px;
-    margin-top: 18px;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-  .setting-item { display: flex; align-items: center; gap: 10px; }
-  .setting-item label { font-size: 0.92rem; color: #374151; font-weight: 500; white-space: nowrap; }
-  .setting-item input[type=number] {
-    width: 80px; padding: 6px 10px; border: 1.5px solid #d1d5db;
-    border-radius: 8px; font-size: 0.92rem; outline: none;
-    transition: border-color .2s;
-  }
-  .setting-item input[type=number]:focus { border-color: #1a56db; }
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.setting-item { display: flex; align-items: center; gap: 8px; }
+.setting-item label { font-size: 0.88rem; color: #374151; font-weight: 500; white-space: nowrap; }
+.setting-item input[type=number] {
+  width: 78px; padding: 7px 10px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px; font-size: 0.9rem;
+  outline: none; transition: border-color .2s;
+}
+.setting-item input[type=number]:focus { border-color: #1a56db; }
 
-  .btn-generate {
-    background: linear-gradient(135deg, #1a56db, #0ea5e9);
-    color: white; border: none; padding: 10px 28px;
-    border-radius: 10px; font-size: 0.97rem; font-weight: 600;
-    cursor: pointer; transition: all .2s; white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(26,86,219,0.25);
-  }
-  .btn-generate:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(26,86,219,0.35); }
-  .btn-generate:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+.btn-generate {
+  background: linear-gradient(135deg, #1a56db, #0ea5e9);
+  color: white; border: none; padding: 10px 30px;
+  border-radius: 10px; font-size: 0.97rem; font-weight: 700;
+  cursor: pointer; transition: all .2s; white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(26,86,219,0.28);
+  margin-left: auto;
+}
+.btn-generate:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(26,86,219,0.38);
+}
+.btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* 文件信息 */
-  .file-info {
-    display: none;
-    background: #f0fdf4;
-    border: 1.5px solid #86efac;
-    border-radius: 10px;
-    padding: 12px 18px;
-    margin-top: 14px;
-    font-size: 0.9rem;
-    color: #166534;
-  }
-  .file-info.show { display: flex; align-items: center; gap: 10px; }
-  .file-info strong { color: #15803d; }
+/* ── 状态 ── */
+.status-bar {
+  display: none;
+  background: white;
+  border-radius: 10px;
+  padding: 13px 18px;
+  margin-top: 14px;
+  font-size: 0.9rem;
+  color: #374151;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  align-items: center;
+  gap: 12px;
+}
+.status-bar.show { display: flex; }
+.spinner {
+  width: 18px; height: 18px;
+  border: 2.5px solid #e2e8f0;
+  border-top-color: #1a56db;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-  /* 状态/进度 */
-  .status-bar {
-    display: none;
-    background: white;
-    border-radius: 10px;
-    padding: 14px 20px;
-    margin-top: 16px;
-    font-size: 0.9rem;
-    color: #374151;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    align-items: center;
-    gap: 12px;
-  }
-  .status-bar.show { display: flex; }
-  .spinner {
-    width: 18px; height: 18px;
-    border: 2.5px solid #e2e8f0;
-    border-top-color: #1a56db;
-    border-radius: 50%;
-    animation: spin .7s linear infinite;
-    flex-shrink: 0;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+/* ── 错误 ── */
+.error-msg {
+  display: none;
+  background: #fef2f2; border: 1.5px solid #fca5a5;
+  border-radius: 10px; padding: 12px 18px;
+  color: #b91c1c; font-size: 0.88rem; margin-top: 14px;
+}
+.error-msg.show { display: block; }
 
-  /* 结果区 */
-  .result-card {
-    display: none;
-    background: white;
-    border-radius: 16px;
-    margin-top: 20px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    overflow: hidden;
-  }
-  .result-card.show { display: block; }
+/* ── 结果区 ── */
+.result-card {
+  display: none;
+  background: white;
+  border-radius: 16px;
+  margin-top: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  overflow: hidden;
+}
+.result-card.show { display: block; }
 
-  .result-header {
-    background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
-    padding: 16px 22px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .result-stats { display: flex; gap: 16px; flex-wrap: wrap; }
-  .stat-chip {
-    font-size: 0.83rem;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-weight: 500;
-  }
-  .stat-green  { background: #dcfce7; color: #166534; }
-  .stat-yellow { background: #fef9c3; color: #854d0e; }
-  .stat-gray   { background: #f1f5f9; color: #475569; }
+.result-header {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 14px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.result-stats { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.stat-chip {
+  font-size: 0.82rem;
+  padding: 4px 11px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+.chip-total  { background: #f1f5f9; color: #475569; }
+.chip-green  { background: #dcfce7; color: #166534; }
+.chip-mid    { background: #e0f2fe; color: #0369a1; }
+.chip-yellow { background: #fef9c3; color: #854d0e; }
 
-  .btn-download {
-    background: #16a34a; color: white; border: none;
-    padding: 8px 20px; border-radius: 8px; font-size: 0.88rem;
-    font-weight: 600; cursor: pointer; transition: all .2s;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .btn-download:hover { background: #15803d; transform: translateY(-1px); }
+.btn-download {
+  background: #16a34a; color: white; border: none;
+  padding: 8px 18px; border-radius: 8px; font-size: 0.88rem;
+  font-weight: 600; cursor: pointer; transition: all .2s;
+  display: flex; align-items: center; gap: 6px;
+}
+.btn-download:hover { background: #15803d; transform: translateY(-1px); }
 
-  .root-tag {
-    font-size: 0.84rem;
-    color: #6366f1;
-    font-weight: 500;
-    padding: 0 22px 12px;
-    border-bottom: 1px solid #e2e8f0;
-  }
+.result-root {
+  padding: 10px 22px;
+  font-size: 0.84rem;
+  color: #6366f1;
+  font-weight: 500;
+  border-bottom: 1px solid #f1f5f9;
+}
 
-  /* 表格 */
-  .table-wrap { overflow-x: auto; max-height: 520px; overflow-y: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-  thead { position: sticky; top: 0; z-index: 2; }
-  thead th {
-    background: #1e3a8a; color: white;
-    padding: 10px 14px; text-align: left;
-    font-weight: 600; white-space: nowrap;
-  }
-  tbody tr { border-bottom: 1px solid #f1f5f9; }
-  tbody tr:hover { background: #f8fafc; }
-  td { padding: 9px 14px; }
-  td:first-child { color: #94a3b8; width: 48px; text-align: center; }
-  td:nth-child(2) { width: 56px; text-align: center; font-variant-numeric: tabular-nums; }
-  .cell-green  { background: #dcfce7; }
-  .cell-yellow { background: #fef9c3; }
+.table-wrap { overflow-x: auto; max-height: 540px; overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+thead { position: sticky; top: 0; z-index: 2; }
+thead th {
+  background: #1e3a8a; color: white;
+  padding: 10px 14px; text-align: left;
+  font-weight: 600; white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid #f1f5f9; }
+tbody tr:hover { background: #f8fafc; }
+td { padding: 8px 14px; line-height: 1.4; }
+td.no { color: #94a3b8; width: 46px; text-align: center; }
+td.cc { width: 54px; text-align: center; font-variant-numeric: tabular-nums; font-weight: 600; }
+.cell-green  { background: #dcfce7; color: #166534; }
+.cell-yellow { background: #fef9c3; color: #854d0e; }
+.cell-mid    { background: #e0f2fe; color: #0369a1; }
 
-  /* 说明 */
-  .guide-card {
-    background: white;
-    border-radius: 14px;
-    padding: 22px 24px;
-    margin-top: 20px;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-  }
-  .guide-card h3 { font-size: 0.97rem; font-weight: 700; color: #1e3a8a; margin-bottom: 14px; }
-  .guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  @media (max-width: 600px) { .guide-grid { grid-template-columns: 1fr; } }
-  .guide-item {
-    background: #f8fafc;
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 0.85rem;
-    color: #374151;
-    line-height: 1.6;
-    border-left: 3px solid #1a56db;
-  }
-  .guide-item strong { color: #1e3a8a; }
+/* ── 说明 ── */
+.guide-card {
+  background: white; border-radius: 14px;
+  padding: 20px 24px; margin-top: 18px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+}
+.guide-card h3 { font-size: 0.95rem; font-weight: 700; color: #1e3a8a; margin-bottom: 12px; }
+.guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 580px) { .guide-grid { grid-template-columns: 1fr; } }
+.guide-item {
+  background: #f8fafc; border-radius: 10px;
+  padding: 12px 14px; font-size: 0.83rem;
+  color: #374151; line-height: 1.65;
+  border-left: 3px solid #1a56db;
+}
+.guide-item strong { color: #1e3a8a; display: block; margin-bottom: 3px; }
 
-  .footer { text-align: center; font-size: 0.8rem; color: #94a3b8; margin-top: 36px; }
-
-  /* 错误提示 */
-  .error-msg {
-    display: none;
-    background: #fef2f2; border: 1.5px solid #fca5a5;
-    border-radius: 10px; padding: 12px 18px;
-    color: #b91c1c; font-size: 0.9rem;
-    margin-top: 14px;
-  }
-  .error-msg.show { display: block; }
+.footer { text-align: center; font-size: 0.78rem; color: #94a3b8; margin-top: 32px; }
 </style>
 </head>
 <body>
 
 <div class="header">
   <h1>🏷️ 国际站一键组标题工具</h1>
-  <p>上传热词表 → 自动识别词根 → 生成100条标题 → 下载Excel</p>
+  <p>上传热词表 → 自动识别词根 → 生成100条标题 → 下载 Excel</p>
 </div>
 
 <div class="container">
 
-  <!-- 上传区 -->
+  <!-- STEP 1: 上传 -->
   <div class="upload-area" id="uploadArea">
     <input type="file" class="upload-input" id="fileInput"
            accept=".xlsx,.xls,.docx,.doc">
@@ -235,46 +284,59 @@
     <div class="upload-sub">支持 .xlsx &nbsp;/&nbsp; .xls &nbsp;/&nbsp; .docx &nbsp;/&nbsp; .doc 格式</div>
   </div>
 
-  <!-- 文件信息 -->
-  <div class="file-info" id="fileInfo">
-    <span>✅</span>
-    <span>已加载：<strong id="fileName">-</strong> &nbsp;|&nbsp; 关键词 <strong id="kwCount">0</strong> 条 &nbsp;|&nbsp; 词根：<strong id="rootWord">-</strong></span>
-  </div>
-
-  <!-- 错误提示 -->
   <div class="error-msg" id="errorMsg"></div>
 
-  <!-- 设置区 -->
-  <div class="settings-card">
-    <div class="setting-item">
-      <label>生成数量</label>
-      <input type="number" id="countInput" value="100" min="10" max="500">
-      <span style="font-size:.85rem;color:#64748b">条</span>
+  <!-- STEP 2: 词根确认 + 设置 -->
+  <div class="step-card" id="stepCard">
+    <div class="step-title">第一步 — 确认词根</div>
+
+    <div class="file-row">
+      <span>✅</span>
+      <span>已加载：<strong id="fileName">-</strong> &nbsp;|&nbsp; 共 <strong id="kwCount">0</strong> 条关键词</span>
     </div>
-    <button class="btn-generate" id="btnGenerate" disabled onclick="generate()">
-      🚀 一键组标题
-    </button>
+
+    <div class="root-section">
+      <div class="root-label">
+        🎯 自动识别词根
+        <span class="badge">可手动修改</span>
+      </div>
+      <div class="root-input-row">
+        <input type="text" class="root-input" id="rootInput" placeholder="正在识别...">
+      </div>
+      <div class="root-hint">词根将固定出现在每条标题最右边，请确认是否正确，可直接修改</div>
+    </div>
+
+    <div class="setting-row">
+      <div class="setting-item">
+        <label>生成数量</label>
+        <input type="number" id="countInput" value="100" min="10" max="500">
+        <span style="font-size:.82rem;color:#64748b">条</span>
+      </div>
+      <button class="btn-generate" id="btnGenerate" onclick="generate()">
+        🚀 一键组标题
+      </button>
+    </div>
   </div>
 
   <!-- 状态条 -->
   <div class="status-bar" id="statusBar">
     <div class="spinner"></div>
-    <span id="statusText">处理中...</span>
+    <span id="statusText">正在组合标题...</span>
   </div>
 
-  <!-- 结果区 -->
+  <!-- STEP 3: 结果 -->
   <div class="result-card" id="resultCard">
     <div class="result-header">
       <div class="result-stats" id="resultStats"></div>
       <button class="btn-download" onclick="downloadExcel()">⬇️ 下载 Excel</button>
     </div>
-    <div class="root-tag" id="rootTag"></div>
+    <div class="result-root" id="resultRoot"></div>
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
-            <th>#</th>
-            <th>字符</th>
+            <th style="width:46px;text-align:center">#</th>
+            <th style="width:54px;text-align:center">字符</th>
             <th>标题</th>
           </tr>
         </thead>
@@ -288,39 +350,38 @@
     <h3>📋 使用说明</h3>
     <div class="guide-grid">
       <div class="guide-item">
-        <strong>表格格式</strong><br>
+        <strong>表格格式</strong>
         国际站热词导出文件（.xls）<br>
-        A列=关键词，B列=搜索指数<br>
+        A列 = 关键词，B列 = 搜索指数<br>
         无需整理，直接上传原始文件
       </div>
       <div class="guide-item">
-        <strong>词根识别</strong><br>
-        自动识别搜索指数最高、<br>
-        覆盖率最广的核心词组作为词根<br>
-        词根固定出现在每条标题最右边
+        <strong>词根识别</strong>
+        自动识别出现最广泛的核心词组<br>
+        上传后请确认词根是否正确<br>
+        可手动修改后再生成
       </div>
       <div class="guide-item">
-        <strong>组合规则</strong><br>
-        • 词根固定最右<br>
-        • 按指数高→低从左→右排列<br>
-        • 同标题内单词不重复<br>
-        • 每条标题 ≤128字符，尽量填满
+        <strong>组合规则</strong>
+        词根固定最右 · 高指数词块靠左<br>
+        同标题内单词不重复<br>
+        每条标题 ≤ 128字符，尽量填满
       </div>
       <div class="guide-item">
-        <strong>颜色说明</strong><br>
+        <strong>颜色说明</strong>
         🟢 绿色：字符数 ≥ 120（优质）<br>
-        🟡 黄色：字符数 &lt; 100（偏短）<br>
-        首字母大写，冠词/介词小写
+        🔵 蓝色：字符数 100–119<br>
+        🟡 黄色：字符数 &lt; 100（偏短）
       </div>
     </div>
   </div>
 
-  <div class="footer">Made for Alibaba International · 国际站运营专用</div>
+  <div class="footer">国际站运营专用 · 数据仅在浏览器本地处理，不上传服务器</div>
 </div>
 
 <script>
 // ============================================================
-//  核心常量
+// 常量
 // ============================================================
 const MAX_LEN = 128;
 
@@ -330,50 +391,28 @@ const SMALL_WORDS = new Set([
 ]);
 
 const BLACKLIST = [
-  /^felicity/i, /^kksky$/i, /^jsot/i, /^haien/i, /^faft/i,
-  /^tnt$/i, /^jd$/i, /^jd-/i, /^yeelite/i, /^sunc/i,
-  /^akko/i, /^gefolly/i, /^alltops/i, /^supersun/i, /^jindian/i,
-  /^kcd\s/i, /^hn-/i, /^mj-/i, /\bsamevpanel\b/i,
-  /^sellers/i, /^ddp/i, /^by-\d/i, /^nss$/i, /^cvtv/i, /^kamera/i,
-  /^\d+\s*$/, /^[\d\-.]+$/
+  /^felicity/i,/^kksky$/i,/^jsot/i,/^haien/i,/^faft/i,
+  /^tnt$/i,/^jd$/i,/^jd-/i,/^yeelite/i,/^sunc/i,
+  /^akko/i,/^gefolly/i,/^alltops/i,/^supersun/i,/^jindian/i,
+  /^kcd\s/i,/^hn-/i,/^mj-/i,/\bsamevpanel\b/i,
+  /^sellers/i,/^ddp/i,/^by-\d/i,/^nss$/i,/^cvtv/i,/^kamera/i,
+  /^\d+\s*$/,/^[\d\-.]+$/
 ];
 
-// ============================================================
-//  工具函数
-// ============================================================
-function isBlacklisted(s) {
-  return BLACKLIST.some(r => r.test(s));
-}
+function isBlacklisted(s) { return BLACKLIST.some(r => r.test(s)); }
 
 function titleCase(s) {
   return s.split(' ').map((w, i) => {
+    if (!w) return w;
     const wl = w.toLowerCase();
-    if (i === 0) return w ? w[0].toUpperCase() + w.slice(1) : w;
+    if (i === 0) return w[0].toUpperCase() + w.slice(1);
     if (SMALL_WORDS.has(wl) && wl.length < 4) return wl;
-    return w ? w[0].toUpperCase() + w.slice(1) : w;
+    return w[0].toUpperCase() + w.slice(1);
   }).join(' ');
 }
 
-function weightedShuffle(arr) {
-  // arr: [{extra, weight}, ...]
-  const out = [];
-  const pool = [...arr];
-  while (pool.length) {
-    const total = pool.reduce((s, x) => s + x.weight, 0);
-    let r = Math.random() * total;
-    let idx = 0;
-    for (; idx < pool.length - 1; idx++) {
-      r -= pool[idx].weight;
-      if (r <= 0) break;
-    }
-    out.push(pool[idx].extra);
-    pool.splice(idx, 1);
-  }
-  return out;
-}
-
 // ============================================================
-//  读取文件 -> [(keyword, index), ...]
+// 读取文件
 // ============================================================
 function parseWorkbook(wb) {
   const ws = wb.Sheets[wb.SheetNames[0]];
@@ -381,14 +420,13 @@ function parseWorkbook(wb) {
   const rows = [];
   let dataStart = 0;
 
-  // 找"关键词"表头行
-  for (let i = 0; i < Math.min(12, data.length); i++) {
+  // 找数据起始行
+  for (let i = 0; i < Math.min(15, data.length); i++) {
     const v = String(data[i][0] || '').trim().toLowerCase();
     if (v === '关键词' || v === 'keyword' || v === 'keywords') {
       dataStart = i + 1; break;
     }
   }
-  // 如果没找到，从第一个有内容的行开始
   if (dataStart === 0) {
     for (let i = 0; i < data.length; i++) {
       const v = String(data[i][0] || '').trim();
@@ -401,47 +439,52 @@ function parseWorkbook(wb) {
   for (let i = dataStart; i < data.length; i++) {
     const kw  = String(data[i][0] || '').trim().toLowerCase();
     const idx = parseFloat(data[i][1]);
-    if (kw && !isNaN(idx) && idx > 0) {
-      rows.push([kw, idx]);
-    }
+    if (kw && !isNaN(idx) && idx > 0) rows.push([kw, idx]);
   }
   return rows;
 }
 
 // ============================================================
-//  识别词根
+// 识别词根
 // ============================================================
 function detectRoot(rawKws) {
+  if (!rawKws.length) return '';
+  // top1 = 指数最高的关键词
   const sorted = [...rawKws].sort((a, b) => b[1] - a[1]);
-  const topKw = sorted[0][0];
-  const topWords = topKw.split(' ');
+  const topKw = sorted[0][0].trim();
+  const topWords = topKw.split(/\s+/);
   const total = rawKws.length;
 
-  if (topWords.length <= 3) return topKw;
-
-  // 从最长到最短扫描 topKw 的前缀，找覆盖率≥60%的最长前缀
-  let best = topKw;
+  // 从最长到最短，找覆盖率 ≥ 60% 的最长前缀
+  let best = topWords.slice(0, 2).join(' '); // 至少2词
   for (let len = topWords.length; len >= 2; len--) {
     const candidate = topWords.slice(0, len).join(' ');
     const count = rawKws.filter(([kw]) => kw.includes(candidate)).length;
-    if (count / total >= 0.6) { best = candidate; break; }
+    if (count / total >= 0.6) {
+      best = candidate;
+      break;
+    }
   }
   return best;
 }
 
 // ============================================================
-//  提取附加词块
+// 提取附加词块
 // ============================================================
 function extractExtras(rawKws, root) {
-  const rootWords = new Set(root.split(' '));
+  const rootWords = new Set(root.toLowerCase().split(/\s+/));
   const extraMap  = new Map();
 
   for (const [kw, idx] of rawKws) {
-    const clean = kw.replace(/[^\w\s-]/g, ' ').replace(/\s+/g, ' ').trim();
-    const extra = clean.split(' ').filter(w => !rootWords.has(w)).join(' ').trim();
+    // 清洗
+    const clean = kw.replace(/[^\w\s]/g, ' ').replace(/\s+/g, ' ').trim();
+    // 去掉词根词，保留剩余
+    const extra = clean.split(' ')
+      .filter(w => w && !rootWords.has(w))
+      .join(' ').trim();
     if (!extra) continue;
     const wc = extra.split(' ').length;
-    if (wc < 1 || wc > 6 || extra.length > 45) continue;
+    if (wc > 6 || extra.length > 50) continue;
     if (isBlacklisted(extra)) continue;
     if (!extraMap.has(extra) || extraMap.get(extra) < idx) {
       extraMap.set(extra, idx);
@@ -454,46 +497,65 @@ function extractExtras(rawKws, root) {
 }
 
 // ============================================================
-//  组一条标题
+// 加权随机打乱
 // ============================================================
-function buildOneTitle(startExtra, allExtras, root) {
-  const chosen = [startExtra];
-  const usedWords = new Set(startExtra.split(' '));
-
-  const shuffled = weightedShuffle(
-    allExtras.filter(x => x.extra !== startExtra)
-  );
-
-  for (const extra of shuffled) {
-    const ws2 = new Set(extra.split(' '));
-    if ([...ws2].some(w => usedWords.has(w))) continue;
-    const test = [...chosen, extra].join(' ') + ' ' + root;
-    if (test.length > MAX_LEN) continue;
-    chosen.push(extra);
-    for (const w of ws2) usedWords.add(w);
+function weightedShuffle(items) {
+  const out = [];
+  const pool = items.map(x => ({ ...x }));
+  while (pool.length) {
+    const total = pool.reduce((s, x) => s + x.weight, 0);
+    let r = Math.random() * total, idx = 0;
+    for (; idx < pool.length - 1; idx++) { r -= pool[idx].weight; if (r <= 0) break; }
+    out.push(pool[idx].extra);
+    pool.splice(idx, 1);
   }
-
-  return titleCase(chosen.join(' ') + ' ' + root);
+  return out;
 }
 
 // ============================================================
-//  生成 N 条标题
+// 组一条标题
 // ============================================================
-function generateTitles(rawKws, root, target = 100) {
-  const extras = extractExtras(rawKws, root);
-  if (!extras.length) return [];
+function buildOneTitle(startExtra, allExtras, root) {
+  const chosen    = [startExtra];
+  const usedWords = new Set(startExtra.split(' '));
 
-  let startPool = extras.map(x => x.extra);
-  // 打乱并补足
-  for (let i = startPool.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [startPool[i], startPool[j]] = [startPool[j], startPool[i]];
+  const shuffled = weightedShuffle(allExtras.filter(x => x.extra !== startExtra));
+
+  for (const extra of shuffled) {
+    const ws2 = extra.split(' ');
+    if (ws2.some(w => usedWords.has(w))) continue;
+    const candidate = [...chosen, extra].join(' ') + ' ' + root;
+    if (candidate.length > MAX_LEN) continue;
+    chosen.push(extra);
+    ws2.forEach(w => usedWords.add(w));
   }
-  while (startPool.length < target) startPool = [...startPool, ...startPool];
-  startPool = startPool.slice(0, target);
 
-  const titles = startPool.map(start => {
-    const t = buildOneTitle(start, extras, root);
+  const raw = chosen.join(' ') + ' ' + root;
+  return titleCase(raw);
+}
+
+// ============================================================
+// 生成 N 条
+// ============================================================
+function generateTitles(rawKws, root, target) {
+  const extras = extractExtras(rawKws, root);
+  if (!extras.length) {
+    showError('未提取到有效词块，请确认词根是否正确，或关键词数据是否包含足够变体');
+    return [];
+  }
+
+  // 起始词轮换
+  let starts = extras.map(x => x.extra);
+  // Fisher-Yates shuffle
+  for (let i = starts.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [starts[i], starts[j]] = [starts[j], starts[i]];
+  }
+  while (starts.length < target) starts = [...starts, ...starts];
+  starts = starts.slice(0, target);
+
+  const titles = starts.map(s => {
+    const t = buildOneTitle(s, extras, root);
     return { len: t.length, title: t };
   });
 
@@ -506,14 +568,13 @@ function generateTitles(rawKws, root, target = 100) {
 }
 
 // ============================================================
-//  状态变量
+// 状态变量
 // ============================================================
-let currentTitles = [];
-let currentRoot   = '';
-let currentFile   = null;
+let _rawKws = [];
+let _titles = [];
 
 // ============================================================
-//  文件处理
+// 文件上传
 // ============================================================
 const uploadArea = document.getElementById('uploadArea');
 const fileInput  = document.getElementById('fileInput');
@@ -523,10 +584,8 @@ uploadArea.addEventListener('dragover', e => {
 });
 uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
 uploadArea.addEventListener('drop', e => {
-  e.preventDefault();
-  uploadArea.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file) handleFile(file);
+  e.preventDefault(); uploadArea.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
 });
 fileInput.addEventListener('change', () => {
   if (fileInput.files[0]) handleFile(fileInput.files[0]);
@@ -535,32 +594,30 @@ fileInput.addEventListener('change', () => {
 function handleFile(file) {
   const ext = file.name.split('.').pop().toLowerCase();
   if (!['xlsx','xls','docx','doc'].includes(ext)) {
-    showError('请上传 .xlsx / .xls / .docx / .doc 格式的文件');
-    return;
+    showError('请上传 .xlsx / .xls / .docx / .doc 格式的文件'); return;
   }
   hideError();
-  currentFile = file;
+
+  // 更新上传区提示
+  document.querySelector('.upload-title').textContent = '✅ 文件已加载，点击可重新上传';
+  document.querySelector('.upload-sub').textContent   = file.name;
 
   const reader = new FileReader();
   reader.onload = e => {
     try {
-      const data = new Uint8Array(e.target.result);
-      const wb = XLSX.read(data, { type: 'array' });
-      const rawKws = parseWorkbook(wb);
-
-      if (!rawKws.length) {
-        showError('未读取到关键词数据，请确认文件格式：A列=关键词，B列=搜索指数');
-        return;
+      const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+      const rows = parseWorkbook(wb);
+      if (!rows.length) {
+        showError('未读取到有效关键词，请确认文件格式：A列=关键词，B列=搜索指数'); return;
       }
+      _rawKws = rows;
 
-      currentRoot = detectRoot(rawKws);
-      window._rawKws = rawKws;
-
-      document.getElementById('fileName').textContent = file.name;
-      document.getElementById('kwCount').textContent  = rawKws.length;
-      document.getElementById('rootWord').textContent = currentRoot;
-      document.getElementById('fileInfo').classList.add('show');
-      document.getElementById('btnGenerate').disabled = false;
+      const root = detectRoot(rows);
+      document.getElementById('fileName').textContent  = file.name;
+      document.getElementById('kwCount').textContent   = rows.length;
+      document.getElementById('rootInput').value       = root;
+      document.getElementById('stepCard').classList.add('show');
+      document.getElementById('resultCard').classList.remove('show');
     } catch (err) {
       showError('文件解析失败：' + err.message);
     }
@@ -569,53 +626,48 @@ function handleFile(file) {
 }
 
 // ============================================================
-//  生成标题
+// 生成
 // ============================================================
 function generate() {
+  const root   = document.getElementById('rootInput').value.trim().toLowerCase();
   const target = parseInt(document.getElementById('countInput').value) || 100;
-  const rawKws = window._rawKws;
-  if (!rawKws) return;
 
-  setStatus(true, '正在组合标题...');
+  if (!root) { showError('请先确认词根'); return; }
+  if (!_rawKws.length) { showError('请先上传文件'); return; }
+  hideError();
+
+  document.getElementById('statusBar').classList.add('show');
   document.getElementById('btnGenerate').disabled = true;
 
   setTimeout(() => {
-    try {
-      currentRoot   = detectRoot(rawKws);
-      currentTitles = generateTitles(rawKws, currentRoot, target);
-      renderResult();
-    } catch (err) {
-      showError('生成失败：' + err.message);
-    } finally {
-      setStatus(false);
-      document.getElementById('btnGenerate').disabled = false;
-    }
-  }, 30);
+    _titles = generateTitles(_rawKws, root, target);
+    document.getElementById('statusBar').classList.remove('show');
+    document.getElementById('btnGenerate').disabled = false;
+    if (_titles.length) renderResult(root);
+  }, 40);
 }
 
 // ============================================================
-//  渲染结果
+// 渲染结果
 // ============================================================
-function renderResult() {
-  const titles = currentTitles;
-  const cntG = titles.filter(x => x.len >= 120).length;
-  const cntM = titles.filter(x => x.len >= 100 && x.len < 120).length;
-  const cntY = titles.filter(x => x.len < 100).length;
+function renderResult(root) {
+  const cntG = _titles.filter(x => x.len >= 120).length;
+  const cntM = _titles.filter(x => x.len >= 100 && x.len < 120).length;
+  const cntY = _titles.filter(x => x.len < 100).length;
 
   document.getElementById('resultStats').innerHTML = `
-    <span class="stat-chip stat-gray">共 ${titles.length} 条</span>
-    <span class="stat-chip stat-green">绿(≥120) ${cntG}</span>
-    ${cntM ? `<span class="stat-chip stat-gray">中(100-119) ${cntM}</span>` : ''}
-    ${cntY ? `<span class="stat-chip stat-yellow">黄(&lt;100) ${cntY}</span>` : ''}
+    <span class="stat-chip chip-total">共 ${_titles.length} 条</span>
+    ${cntG ? `<span class="stat-chip chip-green">🟢 ≥120 共${cntG}条</span>` : ''}
+    ${cntM ? `<span class="stat-chip chip-mid">🔵 100-119 共${cntM}条</span>` : ''}
+    ${cntY ? `<span class="stat-chip chip-yellow">🟡 &lt;100 共${cntY}条</span>` : ''}
   `;
-  document.getElementById('rootTag').textContent = `词根：${currentRoot}`;
+  document.getElementById('resultRoot').textContent = `词根：${titleCase(root)}（固定在每条标题最右边）`;
 
-  const tbody = document.getElementById('tableBody');
-  tbody.innerHTML = titles.map((x, i) => {
-    const cls = x.len >= 120 ? 'cell-green' : x.len < 100 ? 'cell-yellow' : '';
+  document.getElementById('tableBody').innerHTML = _titles.map((x, i) => {
+    const cls = x.len >= 120 ? 'cell-green' : x.len < 100 ? 'cell-yellow' : 'cell-mid';
     return `<tr>
-      <td>${i + 1}</td>
-      <td class="${cls}">${x.len}</td>
+      <td class="no">${i + 1}</td>
+      <td class="cc ${cls}">${x.len}</td>
       <td>${x.title}</td>
     </tr>`;
   }).join('');
@@ -625,35 +677,24 @@ function renderResult() {
 }
 
 // ============================================================
-//  下载 Excel
+// 下载 Excel
 // ============================================================
 function downloadExcel() {
-  if (!currentTitles.length) return;
-
-  const wsData = [['序号', '字符数', '标题']];
-  currentTitles.forEach((x, i) => wsData.push([i + 1, x.len, x.title]));
-
+  if (!_titles.length) return;
+  const root = document.getElementById('rootInput').value.trim() || 'titles';
+  const wsData = [['序号','字符数','标题'],
+    ..._titles.map((x, i) => [i + 1, x.len, x.title])
+  ];
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-  // 列宽
   ws['!cols'] = [{ wch: 6 }, { wch: 8 }, { wch: 110 }];
-
   XLSX.utils.book_append_sheet(wb, ws, '组合标题');
-
-  const fname = (currentRoot || 'titles').replace(/\s+/g, '_');
-  XLSX.writeFile(wb, `${fname}-组合标题${currentTitles.length}条.xlsx`);
+  XLSX.writeFile(wb, `${root.replace(/\s+/g,'_')}-组合标题${_titles.length}条.xlsx`);
 }
 
 // ============================================================
-//  UI helpers
+// UI helpers
 // ============================================================
-function setStatus(show, msg = '') {
-  const bar = document.getElementById('statusBar');
-  bar.classList.toggle('show', show);
-  if (msg) document.getElementById('statusText').textContent = msg;
-}
-
 function showError(msg) {
   const el = document.getElementById('errorMsg');
   el.textContent = msg; el.classList.add('show');
