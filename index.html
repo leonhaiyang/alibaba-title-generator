@@ -119,24 +119,6 @@ body { font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif; background: #f
 }
 .toast.show { opacity: 1; }
 
-/* Rules card - collapsible */
-.rules {
-  background: #fff; border-radius: 12px;
-  margin-bottom: 20px; box-shadow: 0 1px 6px rgba(0,0,0,.06);
-  font-size: 13px; color: #666; line-height: 1.8; overflow: hidden;
-}
-.rules summary {
-  padding: 14px 24px; font-size: 14px; font-weight: 600; color: #555;
-  cursor: pointer; list-style: none; display: flex; align-items: center; gap: 6px;
-  user-select: none; transition: background .2s;
-}
-.rules summary:hover { background: #f5f8ff; }
-.rules summary::-webkit-details-marker { display: none; }
-.rules summary::before { content: '▶'; font-size: 10px; color: #999; transition: transform .2s; display: inline-block; }
-.rules[open] summary::before { transform: rotate(90deg); }
-.rules .rules-body { padding: 0 24px 18px; }
-.rules ul { padding-left: 18px; }
-.rules code { background: #f0f0f0; padding: 1px 6px; border-radius: 3px; font-size: 12px; color: #d32f2f; }
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -155,21 +137,6 @@ body { font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif; background: #f
 
 <div class="container">
 
-  <details class="rules">
-    <summary>📌 使用说明 & 组标题规则</summary>
-    <div class="rules-body">
-      <ul>
-        <li>Excel 表格格式：第1列 = 词根，第2列 = 关键词(英文)，第4列 = 搜索指数（其余列可选，会自动忽略）</li>
-        <li>第一行为表头，会自动跳过</li>
-        <li>词根固定放在每条标题最右边</li>
-        <li>关键词按搜索指数从大到小优先填入，组合时顺序随机打乱</li>
-        <li>同一条标题内不出现重复单词（词根自带的词自动跳过）</li>
-        <li>不同标题之间单词可以重复</li>
-        <li>每条标题接近128字符，不超过128</li>
-        <li>首字母大写，小于4字母的冠词/连词/介词小写（a, an, the, and, or, for, at, in, of, to...）</li>
-      </ul>
-    </div>
-  </details>
 
   <div class="upload-area" id="uploadArea">
     <div class="icon">📂</div>
